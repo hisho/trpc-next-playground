@@ -3,8 +3,8 @@
 import type { AppRouter } from '@src/server/routers/_app';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
-import { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
-import { NextPageContext } from 'next';
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
+import type { NextPageContext } from 'next';
 import superjson from 'superjson';
 
 function getBaseUrl() {
@@ -12,17 +12,17 @@ function getBaseUrl() {
     return '';
   }
   // reference for vercel.com
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+  if (process.env['VERCEL_URL']) {
+    return `https://${process.env['VERCEL_URL']}`;
   }
 
   // // reference for render.com
-  if (process.env.RENDER_INTERNAL_HOSTNAME) {
-    return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${process.env.PORT}`;
+  if (process.env['RENDER_INTERNAL_HOSTNAME']) {
+    return `http://${process.env['RENDER_INTERNAL_HOSTNAME']}:${process.env['PORT']}`;
   }
 
   // assume localhost
-  return `http://127.0.0.1:${process.env.PORT ?? 3000}`;
+  return `http://127.0.0.1:${process.env['PORT'] ?? 3000}`;
 }
 
 /**

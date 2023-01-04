@@ -1,7 +1,7 @@
-import { NextPageWithLayout } from '@src/pages/_app';
+import type { NextPageWithLayout } from '@src/pages/_app';
 import type { AppRouter } from '@src/server/routers/_app';
 import { trpc } from '@src/utils/trpc';
-import { inferProcedureInput } from '@trpc/server';
+import type { inferProcedureInput } from '@trpc/server';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -93,8 +93,8 @@ const IndexPage: NextPageWithLayout = () => {
           type Input = inferProcedureInput<AppRouter['post']['add']>;
           //    ^?
           const input: Input = {
-            text: values.text as string,
-            title: values.title as string,
+            text: values['text'] as string,
+            title: values['title'] as string,
           };
           try {
             await addPost.mutateAsync(input);

@@ -3,7 +3,7 @@
  */
 import { createContextInner } from '@src/server/context';
 import { AppRouter, appRouter } from '@src/server/routers/_app';
-import { inferProcedureInput } from '@trpc/server';
+import type { inferProcedureInput } from '@trpc/server';
 import { expect, test } from 'vitest';
 
 test('add and get post', async () => {

@@ -32,7 +32,11 @@ export const postRouter = router({
     )
     .mutation(async ({ input }) => {
       const post = await prisma.post.create({
-        data: input,
+        data: {
+          text: input.text,
+          title: input.title,
+          ...(input.id ? { id: input.id } : {}),
+        },
         select: defaultPostSelect,
       });
       return post;
@@ -75,11 +79,13 @@ export const postRouter = router({
       const { cursor } = input;
 
       const items = await prisma.post.findMany({
-        cursor: cursor
+        ...(cursor
           ? {
-              id: cursor,
+              cursor: {
+                id: cursor,
+              },
             }
-          : undefined,
+          : {}),
 
         orderBy: {
           createdAt: 'desc',
