@@ -1,11 +1,11 @@
+// ℹ️ Type-only import:
+// https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export
+import type { AppRouter } from '@src/server/routers/_app';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 import { NextPageContext } from 'next';
 import superjson from 'superjson';
-// ℹ️ Type-only import:
-// https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export
-import type { AppRouter } from '~/server/routers/_app';
 
 function getBaseUrl() {
   if (typeof window !== 'undefined') {
@@ -52,10 +52,6 @@ export const trpc = createTRPCNext<AppRouter, SSRContext>({
      */
     return {
       /**
-       * @link https://trpc.io/docs/data-transformers
-       */
-      transformer: superjson,
-      /**
        * @link https://trpc.io/docs/links
        */
       links: [
@@ -66,7 +62,6 @@ export const trpc = createTRPCNext<AppRouter, SSRContext>({
             (opts.direction === 'down' && opts.result instanceof Error),
         }),
         httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
           /**
            * Set custom request headers on every request from tRPC
            * @link https://trpc.io/docs/ssr
@@ -86,18 +81,22 @@ export const trpc = createTRPCNext<AppRouter, SSRContext>({
             }
             return {};
           },
+
+          url: `${getBaseUrl()}/api/trpc`,
         }),
       ],
+
+      /**
+       * @link https://trpc.io/docs/data-transformers
+       */
+      transformer: superjson,
       /**
        * @link https://react-query.tanstack.com/reference/QueryClient
        */
       // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
     };
   },
-  /**
-   * @link https://trpc.io/docs/ssr
-   */
-  ssr: true,
+
   /**
    * Set headers or status code when doing SSR
    */
@@ -123,6 +122,11 @@ export const trpc = createTRPCNext<AppRouter, SSRContext>({
 
     return {};
   },
+
+  /**
+   * @link https://trpc.io/docs/ssr
+   */
+  ssr: true,
 });
 
 export type RouterInput = inferRouterInputs<AppRouter>;

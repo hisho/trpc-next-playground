@@ -2,11 +2,11 @@
  *
  * This is an example router, you can delete this file and then update `../pages/api/trpc/[trpc].tsx`
  */
-import { router, publicProcedure } from '../trpc';
 import { Prisma } from '@prisma/client';
+import { prisma } from '@src/server/prisma';
+import { publicProcedure, router } from '@src/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { prisma } from '~/server/prisma';
 
 /**
  * Default selector for Post.
@@ -14,19 +14,54 @@ import { prisma } from '~/server/prisma';
  * @see https://github.com/prisma/prisma/issues/9353
  */
 const defaultPostSelect = Prisma.validator<Prisma.PostSelect>()({
-  id: true,
-  title: true,
-  text: true,
   createdAt: true,
+  id: true,
+  text: true,
+  title: true,
   updatedAt: true,
 });
 
 export const postRouter = router({
+  add: publicProcedure
+    .input(
+      z.object({
+        id: z.string().uuid().optional(),
+        text: z.string().min(1),
+        title: z.string().min(1).max(32),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const post = await prisma.post.create({
+        data: input,
+        select: defaultPostSelect,
+      });
+      return post;
+    }),
+  byId: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { id } = input;
+      const post = await prisma.post.findUnique({
+        select: defaultPostSelect,
+        where: { id },
+      });
+      if (!post) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: `No post with id '${id}'`,
+        });
+      }
+      return post;
+    }),
   list: publicProcedure
     .input(
       z.object({
-        limit: z.number().min(1).max(100).nullish(),
         cursor: z.string().nullish(),
+        limit: z.number().min(1).max(100).nullish(),
       }),
     )
     .query(async ({ input }) => {
@@ -40,18 +75,20 @@ export const postRouter = router({
       const { cursor } = input;
 
       const items = await prisma.post.findMany({
-        select: defaultPostSelect,
-        // get an extra item at the end which we'll use as next cursor
-        take: limit + 1,
-        where: {},
         cursor: cursor
           ? {
               id: cursor,
             }
           : undefined,
+
         orderBy: {
           createdAt: 'desc',
         },
+
+        select: defaultPostSelect,
+        // get an extra item at the end which we'll use as next cursor
+        take: limit + 1,
+        where: {},
       });
       let nextCursor: typeof cursor | undefined = undefined;
       if (items.length > limit) {
@@ -66,40 +103,5 @@ export const postRouter = router({
         items: items.reverse(),
         nextCursor,
       };
-    }),
-  byId: publicProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      }),
-    )
-    .query(async ({ input }) => {
-      const { id } = input;
-      const post = await prisma.post.findUnique({
-        where: { id },
-        select: defaultPostSelect,
-      });
-      if (!post) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: `No post with id '${id}'`,
-        });
-      }
-      return post;
-    }),
-  add: publicProcedure
-    .input(
-      z.object({
-        id: z.string().uuid().optional(),
-        title: z.string().min(1).max(32),
-        text: z.string().min(1),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      const post = await prisma.post.create({
-        data: input,
-        select: defaultPostSelect,
-      });
-      return post;
     }),
 });

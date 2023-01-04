@@ -1,7 +1,7 @@
+import { NextPageWithLayout } from '@src/pages/_app';
+import { RouterOutput, trpc } from '@src/utils/trpc';
 import NextError from 'next/error';
 import { useRouter } from 'next/router';
-import { NextPageWithLayout } from '~/pages/_app';
-import { RouterOutput, trpc } from '~/utils/trpc';
 
 type PostByIdOutput = RouterOutput['post']['byId'];
 

@@ -1,9 +1,10 @@
 /**
  * Integration test example for the `post` router
  */
-import { createContextInner } from '../context';
-import { AppRouter, appRouter } from './_app';
+import { createContextInner } from '@src/server/context';
+import { AppRouter, appRouter } from '@src/server/routers/_app';
 import { inferProcedureInput } from '@trpc/server';
+import { expect, test } from 'vitest';
 
 test('add and get post', async () => {
   const ctx = await createContextInner({});
