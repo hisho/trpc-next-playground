@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'url'
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { configDefaults, defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
@@ -11,4 +11,4 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, '**/playwright/**'],
     globals: true,
   },
-});
+})

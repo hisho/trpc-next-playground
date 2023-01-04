@@ -1,29 +1,29 @@
-import type { NextPageWithLayout } from '@src/pages/_app';
-import type { AppRouter } from '@src/server/routers/_app';
-import { trpc } from '@src/utils/trpc';
-import type { inferProcedureInput } from '@trpc/server';
-import Link from 'next/link';
-import { Fragment } from 'react';
+import type { NextPageWithLayout } from '@src/pages/_app'
+import type { AppRouter } from '@src/server/routers/_app'
+import { trpc } from '@src/utils/trpc'
+import type { inferProcedureInput } from '@trpc/server'
+import Link from 'next/link'
+import { Fragment } from 'react'
 
 const IndexPage: NextPageWithLayout = () => {
-  const utils = trpc.useContext();
+  const utils = trpc.useContext()
   const postsQuery = trpc.post.list.useInfiniteQuery(
     {
       limit: 5,
     },
     {
       getPreviousPageParam(lastPage) {
-        return lastPage.nextCursor;
+        return lastPage.nextCursor
       },
-    },
-  );
+    }
+  )
 
   const addPost = trpc.post.add.useMutation({
     async onSuccess() {
       // refetches posts after a post is added
-      await utils.post.list.invalidate();
+      await utils.post.list.invalidate()
     },
-  });
+  })
 
   // prefetch all posts for instant navigation
   // useEffect(() => {
@@ -87,21 +87,21 @@ const IndexPage: NextPageWithLayout = () => {
            * @see https://react-hook-form.com/
            * @see https://kitchen-sink.trpc.io/react-hook-form
            */
-          e.preventDefault();
-          const $form = e.currentTarget;
-          const values = Object.fromEntries(new FormData($form));
-          type Input = inferProcedureInput<AppRouter['post']['add']>;
+          e.preventDefault()
+          const $form = e.currentTarget
+          const values = Object.fromEntries(new FormData($form))
+          type Input = inferProcedureInput<AppRouter['post']['add']>
           //    ^?
           const input: Input = {
             text: values['text'] as string,
             title: values['title'] as string,
-          };
+          }
           try {
-            await addPost.mutateAsync(input);
+            await addPost.mutateAsync(input)
 
-            $form.reset();
+            $form.reset()
           } catch (cause) {
-            console.error({ cause }, 'Failed to add post');
+            console.error({ cause }, 'Failed to add post')
           }
         }}
       >
@@ -125,10 +125,10 @@ const IndexPage: NextPageWithLayout = () => {
         )}
       </form>
     </>
-  );
-};
+  )
+}
 
-export default IndexPage;
+export default IndexPage
 
 /**
  * If you want to statically render this page

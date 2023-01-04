@@ -69,6 +69,6 @@ const config = {
       node: true,
     },
   },
-};
+}
 
-module.exports = config;
+module.exports = config
