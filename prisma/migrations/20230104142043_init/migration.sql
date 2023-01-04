@@ -8,9 +8,3 @@ CREATE TABLE "Post" (
 
     CONSTRAINT "Post_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "Post_createdAt_key" ON "Post"("createdAt");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Post_updatedAt_key" ON "Post"("updatedAt");

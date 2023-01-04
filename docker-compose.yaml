@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:14
+    restart: always
+    container_name: trpc_starter_app_container
+    volumes:
+      - ./docker/db/postgresql:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: trpc-starter-app
+volumes:
+  postgres-data-volume:
+    name: trpc_starter_app_volume

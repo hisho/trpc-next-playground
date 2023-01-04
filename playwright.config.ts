@@ -25,6 +25,11 @@ const config: PlaywrightTestConfig = {
     headless: opts.headless,
     video: 'on',
   },
+  webServer: {
+    command: 'yarn dev',
+    reuseExistingServer: true,
+    url: baseUrl,
+  },
 }
 
 export default config
