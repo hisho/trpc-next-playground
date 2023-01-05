@@ -1,4 +1,4 @@
-import type { NextPageWithLayout } from '@src/pages/_app'
+import type { NextPageWithLayout } from '@src/pages/_app.page'
 import type { AppRouter } from '@src/server/routers/_app'
 import { trpc } from '@src/utils/trpc'
 import type { inferProcedureInput } from '@trpc/server'

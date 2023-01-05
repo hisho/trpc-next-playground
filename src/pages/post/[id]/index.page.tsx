@@ -1,4 +1,4 @@
-import type { NextPageWithLayout } from '@src/pages/_app'
+import type { NextPageWithLayout } from '@src/pages/_app.page'
 import { RouterOutput, trpc } from '@src/utils/trpc'
 import NextError from 'next/error'
 import { useRouter } from 'next/router'
