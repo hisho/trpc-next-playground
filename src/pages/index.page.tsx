@@ -1,8 +1,19 @@
+import {
+  Button,
+  chakra,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Link,
+  Text,
+  Textarea,
+} from '@chakra-ui/react'
 import type { NextPageWithLayout } from '@src/pages/_app.page'
 import type { AppRouter } from '@src/server/routers/_app'
 import { trpc } from '@src/utils/trpc'
 import type { inferProcedureInput } from '@trpc/server'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { Fragment } from 'react'
 
 const IndexPage: NextPageWithLayout = () => {
@@ -35,23 +46,24 @@ const IndexPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <h1>Welcome to your tRPC starter!</h1>
-      <p>
-        If you get stuck, check <a href="https://trpc.io">the docs</a>, write a
-        message in our <a href="https://trpc.io/discord">Discord-channel</a>, or
-        write a message in{' '}
-        <a href="https://github.com/trpc/trpc/discussions">
+      <Heading as={'h1'}>Welcome to your tRPC starter!</Heading>
+      <Text>
+        If you get stuck, check <Link href="https://trpc.io">the docs</Link>,
+        write a message in our{' '}
+        <Link href="https://trpc.io/discord">Discord-channel</Link>, or write a
+        message in{' '}
+        <Link href="https://github.com/trpc/trpc/discussions">
           GitHub Discussions
-        </a>
+        </Link>
         .
-      </p>
+      </Text>
 
-      <h2>
+      <Heading as={'h2'}>
         Latest Posts
         {postsQuery.status === 'loading' && '(loading)'}
-      </h2>
+      </Heading>
 
-      <button
+      <Button
         onClick={() => postsQuery.fetchPreviousPage()}
         disabled={
           !postsQuery.hasPreviousPage || postsQuery.isFetchingPreviousPage
@@ -62,24 +74,28 @@ const IndexPage: NextPageWithLayout = () => {
           : postsQuery.hasPreviousPage
           ? 'Load More'
           : 'Nothing more to load'}
-      </button>
+      </Button>
 
       {postsQuery.data?.pages.map((page, index) => (
         <Fragment key={page.items[0]?.id || index}>
           {page.items.map((item) => (
-            <article key={item.id}>
-              <h3>{item.title}</h3>
-              <Link href={`/post/${item.id}`}>View more</Link>
-            </article>
+            <chakra.article key={item.id}>
+              <Heading as={'h3'}>{item.title}</Heading>
+              <Link as={NextLink} href={`/post/${item.id}`}>
+                View more
+              </Link>
+            </chakra.article>
           ))}
         </Fragment>
       ))}
 
-      <hr />
+      <chakra.hr />
 
-      <h3>Add a Post</h3>
+      <Heading as={'h3'}>Add a Post</Heading>
 
-      <form
+      <chakra.form
+        w={'full'}
+        maxW={'xl'}
         onSubmit={async (e) => {
           /**
            * In a real app you probably don't want to use this manually
@@ -105,25 +121,24 @@ const IndexPage: NextPageWithLayout = () => {
           }
         }}
       >
-        <label htmlFor="title">Title:</label>
-        <br />
-        <input
-          id="title"
-          name="title"
-          type="text"
-          disabled={addPost.isLoading}
-        />
+        <FormControl>
+          <FormLabel>Title:</FormLabel>
+          <Input name="title" type="text" disabled={addPost.isLoading} />
+        </FormControl>
 
-        <br />
-        <label htmlFor="text">Text:</label>
-        <br />
-        <textarea id="text" name="text" disabled={addPost.isLoading} />
-        <br />
-        <input type="submit" disabled={addPost.isLoading} />
+        <chakra.br />
+        <FormControl>
+          <FormLabel>Text:</FormLabel>
+          <Textarea name="text" disabled={addPost.isLoading} />
+        </FormControl>
+        <chakra.br />
+        <Button type={'submit'} disabled={addPost.isLoading}>
+          送信
+        </Button>
         {addPost.error && (
-          <p style={{ color: 'red' }}>{addPost.error.message}</p>
+          <Text style={{ color: 'red' }}>{addPost.error.message}</Text>
         )}
-      </form>
+      </chakra.form>
     </>
   )
 }

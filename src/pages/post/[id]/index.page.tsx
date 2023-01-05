@@ -1,3 +1,4 @@
+import { chakra, Heading, Text } from '@chakra-ui/react'
 import type { NextPageWithLayout } from '@src/pages/_app.page'
 import { RouterOutput, trpc } from '@src/utils/trpc'
 import NextError from 'next/error'
@@ -9,13 +10,15 @@ function PostItem(props: { post: PostByIdOutput }) {
   const { post } = props
   return (
     <>
-      <h1>{post.title}</h1>
-      <em>Created {post.createdAt.toLocaleDateString('en-us')}</em>
+      <Heading as={'h1'}>{post.title}</Heading>
+      <chakra.em>
+        Created {post.createdAt.toLocaleDateString('en-us')}
+      </chakra.em>
 
-      <p>{post.text}</p>
+      <Text>{post.text}</Text>
 
-      <h2>Raw data:</h2>
-      <pre>{JSON.stringify(post, null, 4)}</pre>
+      <Heading as={'h2'}>Raw data:</Heading>
+      <chakra.pre>{JSON.stringify(post, null, 4)}</chakra.pre>
     </>
   )
 }

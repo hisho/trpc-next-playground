@@ -1,3 +1,4 @@
+import { ChakraProvider } from '@chakra-ui/react'
 import { DefaultLayout } from '@src/components/DefaultLayout'
 import { trpc } from '@src/utils/trpc'
 import type { NextPage } from 'next'
@@ -19,7 +20,9 @@ const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
   const getLayout =
     Component.getLayout ?? ((page) => <DefaultLayout>{page}</DefaultLayout>)
 
-  return getLayout(<Component {...pageProps} />)
+  return (
+    <ChakraProvider>{getLayout(<Component {...pageProps} />)}</ChakraProvider>
+  )
 }) as AppType
 
 export default trpc.withTRPC(MyApp)
