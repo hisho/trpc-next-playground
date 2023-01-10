@@ -11,13 +11,23 @@
 import type { Context } from '@src/server/context'
 import { initTRPC } from '@trpc/server'
 import superjson from 'superjson'
+import { ZodError } from 'zod'
 
 const t = initTRPC.context<Context>().create({
   /**
    * @see https://trpc.io/docs/v10/error-formatting
    */
-  errorFormatter({ shape }) {
-    return shape
+  errorFormatter({ error, shape }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        zodError:
+          error.code === 'BAD_REQUEST' && error.cause instanceof ZodError
+            ? error.cause.flatten()
+            : null,
+      },
+    }
   },
 
   /**
