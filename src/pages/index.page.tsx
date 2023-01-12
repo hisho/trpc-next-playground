@@ -34,7 +34,7 @@ const IndexPage: NextPageWithLayout = () => {
     }
   )
 
-  const addPost = trpc.post.add.useMutation({
+  const createPost = trpc.post.create.useMutation({
     async onSuccess() {
       // refetches posts after a post is added
       await utils.post.list.invalidate()
@@ -42,7 +42,7 @@ const IndexPage: NextPageWithLayout = () => {
   })
 
   const { findErrorMessages, resetError, setError } =
-    useTRPCError<AppRouter['post']['add']>()
+    useTRPCError<AppRouter['post']['create']>()
 
   const form = useForm({
     defaultValues: {
@@ -56,13 +56,13 @@ const IndexPage: NextPageWithLayout = () => {
     }),
   })
 
-  const onAddPost = async ({
+  const onCreatePost = async ({
     id,
     text,
     title,
-  }: inferProcedureInput<AppRouter['post']['add']>) => {
+  }: inferProcedureInput<AppRouter['post']['create']>) => {
     try {
-      await addPost.mutateAsync({ id, text, title })
+      await createPost.mutateAsync({ id, text, title })
       resetError()
     } catch (e) {
       if (isTRPCClientError(e)) {
@@ -123,13 +123,13 @@ const IndexPage: NextPageWithLayout = () => {
       <chakra.form
         w={'full'}
         maxW={'xl'}
-        onSubmit={form.handleSubmit(onAddPost)}
+        onSubmit={form.handleSubmit(onCreatePost)}
       >
         <FormControl isInvalid={!!findErrorMessages('title')}>
           <FormLabel>Title:</FormLabel>
           <Input
             type={'text'}
-            isDisabled={addPost.isLoading}
+            isDisabled={createPost.isLoading}
             {...form.register('title')}
           />
           {form.formState.errors.title && (
@@ -139,7 +139,9 @@ const IndexPage: NextPageWithLayout = () => {
           )}
           {findErrorMessages('title') &&
             findErrorMessages('title')?.map((message, index) => (
-              <FormErrorMessage key={`addPost_title_error_${message}_${index}`}>
+              <FormErrorMessage
+                key={`createPost_title_error_${message}_${index}`}
+              >
                 {message}
               </FormErrorMessage>
             ))}
@@ -148,7 +150,10 @@ const IndexPage: NextPageWithLayout = () => {
         <chakra.br />
         <FormControl isInvalid={!!findErrorMessages('text')}>
           <FormLabel>Text:</FormLabel>
-          <Textarea isDisabled={addPost.isLoading} {...form.register('text')} />
+          <Textarea
+            isDisabled={createPost.isLoading}
+            {...form.register('text')}
+          />
           {form.formState.errors.text && (
             <FormErrorMessage>
               {form.formState.errors.text.message}
@@ -156,18 +161,20 @@ const IndexPage: NextPageWithLayout = () => {
           )}
           {findErrorMessages('text') &&
             findErrorMessages('text')?.map((message, index) => (
-              <FormErrorMessage key={`addPost_text_error_${message}_${index}`}>
+              <FormErrorMessage
+                key={`createPost_text_error_${message}_${index}`}
+              >
                 {message}
               </FormErrorMessage>
             ))}
         </FormControl>
         <chakra.br />
-        <Button type={'submit'} isLoading={addPost.isLoading}>
+        <Button type={'submit'} isLoading={createPost.isLoading}>
           送信
         </Button>
-        {addPost.error && (
+        {createPost.error && (
           <Text style={{ color: 'red' }}>
-            {JSON.stringify(addPost.error.data?.zodError)}
+            {JSON.stringify(createPost.error.data?.zodError)}
           </Text>
         )}
       </chakra.form>

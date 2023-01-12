@@ -3,7 +3,7 @@
  * This is an example router, you can delete this file and then update `../pages/api/trpc/[trpc].tsx`
  */
 import { Prisma } from '@prisma/client'
-import { addPostSchema } from '@src/model/Post/addPostSchema'
+import { createPostSchema } from '@src/model/Post/schema'
 import { prisma } from '@src/server/prisma'
 import { publicProcedure, router } from '@src/server/trpc'
 import { TRPCError } from '@trpc/server'
@@ -23,17 +23,6 @@ const defaultPostSelect = Prisma.validator<Prisma.PostSelect>()({
 })
 
 export const postRouter = router({
-  add: publicProcedure.input(addPostSchema).mutation(async ({ input }) => {
-    const post = await prisma.post.create({
-      data: {
-        text: input.text,
-        title: input.title,
-        ...(input.id ? { id: input.id } : {}),
-      },
-      select: defaultPostSelect,
-    })
-    return post
-  }),
   byId: publicProcedure
     .input(
       z.object({
@@ -53,6 +42,18 @@ export const postRouter = router({
         })
       }
       return post
+    }),
+  create: publicProcedure
+    .input(createPostSchema)
+    .mutation(async ({ input }) => {
+      return await prisma.post.create({
+        data: {
+          text: input.text,
+          title: input.title,
+          ...(input.id ? { id: input.id } : {}),
+        },
+        select: defaultPostSelect,
+      })
     }),
   list: publicProcedure
     .input(
