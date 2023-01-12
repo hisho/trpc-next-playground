@@ -5,7 +5,6 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
-  Text,
   Textarea,
 } from '@chakra-ui/react'
 import { useForm } from '@src/lib/react-hook-form/useForm/useForm'
@@ -14,14 +13,17 @@ import { useTRPCError } from '@src/lib/trpc/useTRPCError/useTRPCError'
 import type { AppRouter } from '@src/server/routers/_app'
 import { trpc } from '@src/utils/trpc'
 import type { inferProcedureInput } from '@trpc/server'
+import { useMemo } from 'react'
 import { z } from 'zod'
+
+const id = 'CreatePostForm' as const
 
 export const CreatePostForm = () => {
   const utils = trpc.useContext()
   const { findErrorMessages, resetError, setError } =
     useTRPCError<AppRouter['post']['create']>()
 
-  const form = useForm({
+  const { handleSubmit, register, reset } = useForm({
     defaultValues: {
       text: '',
       title: '',
@@ -33,20 +35,13 @@ export const CreatePostForm = () => {
     }),
   })
 
-  const onCreatePost = async ({
-    id,
-    text,
-    title,
-  }: inferProcedureInput<AppRouter['post']['create']>) => {
-    try {
-      await createPost.mutateAsync({ id, text, title })
-      resetError()
-    } catch (e) {
-      if (isTRPCClientError(e)) {
-        setError(e)
-      }
-    }
-  }
+  const tRPCErrorMessages = useMemo(
+    () => ({
+      text: findErrorMessages('text'),
+      title: findErrorMessages('title'),
+    }),
+    [findErrorMessages]
+  )
 
   const createPost = trpc.post.create.useMutation({
     async onSuccess() {
@@ -55,26 +50,38 @@ export const CreatePostForm = () => {
     },
   })
 
+  const onCreatePost = async ({
+    id,
+    text,
+    title,
+  }: inferProcedureInput<AppRouter['post']['create']>) => {
+    try {
+      await createPost.mutateAsync({ id, text, title })
+      resetError()
+      reset()
+    } catch (e) {
+      if (isTRPCClientError(e)) {
+        setError(e)
+      }
+    }
+  }
+
   return (
     <chakra.form
       w={'full'}
       maxW={'xl'}
-      onSubmit={form.handleSubmit(onCreatePost)}
+      onSubmit={handleSubmit(onCreatePost)}
+      id={id}
     >
-      <FormControl isInvalid={!!findErrorMessages('title')}>
+      <FormControl isInvalid={!!tRPCErrorMessages.title}>
         <FormLabel>Title:</FormLabel>
         <Input
           type={'text'}
           isDisabled={createPost.isLoading}
-          {...form.register('title')}
+          {...register('title')}
         />
-        {form.formState.errors.title && (
-          <FormErrorMessage>
-            {form.formState.errors.title.message}
-          </FormErrorMessage>
-        )}
-        {findErrorMessages('title') &&
-          findErrorMessages('title')?.map((message, index) => (
+        {tRPCErrorMessages.title &&
+          tRPCErrorMessages.title.map((message, index) => (
             <FormErrorMessage
               key={`createPost_title_error_${message}_${index}`}
             >
@@ -84,19 +91,11 @@ export const CreatePostForm = () => {
       </FormControl>
 
       <chakra.br />
-      <FormControl isInvalid={!!findErrorMessages('text')}>
+      <FormControl isInvalid={!!tRPCErrorMessages.text}>
         <FormLabel>Text:</FormLabel>
-        <Textarea
-          isDisabled={createPost.isLoading}
-          {...form.register('text')}
-        />
-        {form.formState.errors.text && (
-          <FormErrorMessage>
-            {form.formState.errors.text.message}
-          </FormErrorMessage>
-        )}
-        {findErrorMessages('text') &&
-          findErrorMessages('text')?.map((message, index) => (
+        <Textarea isDisabled={createPost.isLoading} {...register('text')} />
+        {tRPCErrorMessages.text &&
+          tRPCErrorMessages.text.map((message, index) => (
             <FormErrorMessage key={`createPost_text_error_${message}_${index}`}>
               {message}
             </FormErrorMessage>
@@ -106,11 +105,6 @@ export const CreatePostForm = () => {
       <Button type={'submit'} isLoading={createPost.isLoading}>
         送信
       </Button>
-      {createPost.error && (
-        <Text style={{ color: 'red' }}>
-          {JSON.stringify(createPost.error.data?.zodError)}
-        </Text>
-      )}
     </chakra.form>
   )
 }
