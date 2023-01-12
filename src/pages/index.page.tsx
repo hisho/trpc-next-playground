@@ -10,7 +10,7 @@ import {
   Text,
   Textarea,
 } from '@chakra-ui/react'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from '@src/lib/react-hook-form/useForm/useForm'
 import { addPostSchema } from '@src/model/Post/addPostSchema'
 import type { NextPageWithLayout } from '@src/pages/_app.page'
 import type { AppRouter } from '@src/server/routers/_app'
@@ -18,7 +18,6 @@ import { trpc } from '@src/utils/trpc'
 import type { inferProcedureInput } from '@trpc/server'
 import NextLink from 'next/link'
 import { Fragment } from 'react'
-import { useForm } from 'react-hook-form'
 
 const IndexPage: NextPageWithLayout = () => {
   const utils = trpc.useContext()
@@ -45,13 +44,13 @@ const IndexPage: NextPageWithLayout = () => {
   }
 
   type Input = inferProcedureInput<AppRouter['post']['add']>
-  const form = useForm<Input>({
+  const form = useForm({
     defaultValues: {
       text: '',
       title: '',
     },
     mode: 'onBlur',
-    resolver: zodResolver(addPostSchema),
+    schema: addPostSchema,
   })
 
   const onAddPost = async ({ id, text, title }: Input) => {
