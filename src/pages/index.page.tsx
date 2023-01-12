@@ -11,13 +11,15 @@ import {
   Textarea,
 } from '@chakra-ui/react'
 import { useForm } from '@src/lib/react-hook-form/useForm/useForm'
-import { addPostSchema } from '@src/model/Post/addPostSchema'
+import { isTRPCClientError } from '@src/lib/trpc/isTRPCClientError/isTRPCClientError'
+import { useTRPCError } from '@src/lib/trpc/useTRPCError/useTRPCError'
 import type { NextPageWithLayout } from '@src/pages/_app.page'
 import type { AppRouter } from '@src/server/routers/_app'
 import { trpc } from '@src/utils/trpc'
 import type { inferProcedureInput } from '@trpc/server'
 import NextLink from 'next/link'
 import { Fragment } from 'react'
+import { z } from 'zod'
 
 const IndexPage: NextPageWithLayout = () => {
   const utils = trpc.useContext()
@@ -39,25 +41,33 @@ const IndexPage: NextPageWithLayout = () => {
     },
   })
 
-  const getAddPostErrors = (name: keyof Input) => {
-    return addPost.error?.data?.zodError?.fieldErrors[name]
-  }
+  const { findErrorMessages, resetError, setError } =
+    useTRPCError<AppRouter['post']['add']>()
 
-  type Input = inferProcedureInput<AppRouter['post']['add']>
   const form = useForm({
     defaultValues: {
       text: '',
       title: '',
     },
     mode: 'onBlur',
-    schema: addPostSchema,
+    schema: z.object({
+      text: z.string(),
+      title: z.string(),
+    }),
   })
 
-  const onAddPost = async ({ id, text, title }: Input) => {
+  const onAddPost = async ({
+    id,
+    text,
+    title,
+  }: inferProcedureInput<AppRouter['post']['add']>) => {
     try {
       await addPost.mutateAsync({ id, text, title })
+      resetError()
     } catch (e) {
-      console.log(e)
+      if (isTRPCClientError(e)) {
+        setError(e)
+      }
     }
   }
 
@@ -115,11 +125,7 @@ const IndexPage: NextPageWithLayout = () => {
         maxW={'xl'}
         onSubmit={form.handleSubmit(onAddPost)}
       >
-        <FormControl
-          isInvalid={
-            !!form.formState.errors.title || !!getAddPostErrors('title')
-          }
-        >
+        <FormControl isInvalid={!!findErrorMessages('title')}>
           <FormLabel>Title:</FormLabel>
           <Input
             type={'text'}
@@ -131,8 +137,8 @@ const IndexPage: NextPageWithLayout = () => {
               {form.formState.errors.title.message}
             </FormErrorMessage>
           )}
-          {getAddPostErrors('title') &&
-            getAddPostErrors('title')?.map((message, index) => (
+          {findErrorMessages('title') &&
+            findErrorMessages('title')?.map((message, index) => (
               <FormErrorMessage key={`addPost_title_error_${message}_${index}`}>
                 {message}
               </FormErrorMessage>
@@ -140,9 +146,7 @@ const IndexPage: NextPageWithLayout = () => {
         </FormControl>
 
         <chakra.br />
-        <FormControl
-          isInvalid={!!form.formState.errors.text || !!getAddPostErrors('text')}
-        >
+        <FormControl isInvalid={!!findErrorMessages('text')}>
           <FormLabel>Text:</FormLabel>
           <Textarea isDisabled={addPost.isLoading} {...form.register('text')} />
           {form.formState.errors.text && (
@@ -150,8 +154,8 @@ const IndexPage: NextPageWithLayout = () => {
               {form.formState.errors.text.message}
             </FormErrorMessage>
           )}
-          {getAddPostErrors('text') &&
-            getAddPostErrors('text')?.map((message, index) => (
+          {findErrorMessages('text') &&
+            findErrorMessages('text')?.map((message, index) => (
               <FormErrorMessage key={`addPost_text_error_${message}_${index}`}>
                 {message}
               </FormErrorMessage>
