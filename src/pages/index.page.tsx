@@ -2,6 +2,7 @@ import {
   Button,
   chakra,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -9,12 +10,15 @@ import {
   Text,
   Textarea,
 } from '@chakra-ui/react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { addPostSchema } from '@src/model/Post/addPostSchema'
 import type { NextPageWithLayout } from '@src/pages/_app.page'
 import type { AppRouter } from '@src/server/routers/_app'
 import { trpc } from '@src/utils/trpc'
 import type { inferProcedureInput } from '@trpc/server'
 import NextLink from 'next/link'
 import { Fragment } from 'react'
+import { useForm } from 'react-hook-form'
 
 const IndexPage: NextPageWithLayout = () => {
   const utils = trpc.useContext()
@@ -36,13 +40,27 @@ const IndexPage: NextPageWithLayout = () => {
     },
   })
 
-  // prefetch all posts for instant navigation
-  // useEffect(() => {
-  //   const allPosts = postsQuery.data?.pages.flatMap((page) => page.items) ?? [];
-  //   for (const { id } of allPosts) {
-  //     void utils.post.byId.prefetch({ id });
-  //   }
-  // }, [postsQuery.data, utils]);
+  const getAddPostErrors = (name: keyof Input) => {
+    return addPost.error?.data?.zodError?.fieldErrors[name]
+  }
+
+  type Input = inferProcedureInput<AppRouter['post']['add']>
+  const form = useForm<Input>({
+    defaultValues: {
+      text: '',
+      title: '',
+    },
+    mode: 'onBlur',
+    resolver: zodResolver(addPostSchema),
+  })
+
+  const onAddPost = async ({ id, text, title }: Input) => {
+    try {
+      await addPost.mutateAsync({ id, text, title })
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   return (
     <>
@@ -96,47 +114,58 @@ const IndexPage: NextPageWithLayout = () => {
       <chakra.form
         w={'full'}
         maxW={'xl'}
-        onSubmit={async (e) => {
-          /**
-           * In a real app you probably don't want to use this manually
-           * Checkout React Hook Form - it works great with tRPC
-           * @see https://react-hook-form.com/
-           * @see https://kitchen-sink.trpc.io/react-hook-form
-           */
-          e.preventDefault()
-          const $form = e.currentTarget
-          const values = Object.fromEntries(new FormData($form))
-          type Input = inferProcedureInput<AppRouter['post']['add']>
-          //    ^?
-          const input: Input = {
-            text: values['text'] as string,
-            title: values['title'] as string,
-          }
-          try {
-            await addPost.mutateAsync(input)
-
-            $form.reset()
-          } catch (cause) {
-            console.error({ cause }, 'Failed to add post')
-          }
-        }}
+        onSubmit={form.handleSubmit(onAddPost)}
       >
-        <FormControl>
+        <FormControl
+          isInvalid={
+            !!form.formState.errors.title || !!getAddPostErrors('title')
+          }
+        >
           <FormLabel>Title:</FormLabel>
-          <Input name="title" type="text" disabled={addPost.isLoading} />
+          <Input
+            type={'text'}
+            isDisabled={addPost.isLoading}
+            {...form.register('title')}
+          />
+          {form.formState.errors.title && (
+            <FormErrorMessage>
+              {form.formState.errors.title.message}
+            </FormErrorMessage>
+          )}
+          {getAddPostErrors('title') &&
+            getAddPostErrors('title')?.map((message, index) => (
+              <FormErrorMessage key={`addPost_title_error_${message}_${index}`}>
+                {message}
+              </FormErrorMessage>
+            ))}
         </FormControl>
 
         <chakra.br />
-        <FormControl>
+        <FormControl
+          isInvalid={!!form.formState.errors.text || !!getAddPostErrors('text')}
+        >
           <FormLabel>Text:</FormLabel>
-          <Textarea name="text" disabled={addPost.isLoading} />
+          <Textarea isDisabled={addPost.isLoading} {...form.register('text')} />
+          {form.formState.errors.text && (
+            <FormErrorMessage>
+              {form.formState.errors.text.message}
+            </FormErrorMessage>
+          )}
+          {getAddPostErrors('text') &&
+            getAddPostErrors('text')?.map((message, index) => (
+              <FormErrorMessage key={`addPost_text_error_${message}_${index}`}>
+                {message}
+              </FormErrorMessage>
+            ))}
         </FormControl>
         <chakra.br />
-        <Button type={'submit'} disabled={addPost.isLoading}>
+        <Button type={'submit'} isLoading={addPost.isLoading}>
           送信
         </Button>
         {addPost.error && (
-          <Text style={{ color: 'red' }}>{addPost.error.message}</Text>
+          <Text style={{ color: 'red' }}>
+            {JSON.stringify(addPost.error.data?.zodError)}
+          </Text>
         )}
       </chakra.form>
     </>
