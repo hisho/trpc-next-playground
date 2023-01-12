@@ -17,7 +17,7 @@ $ git clone git@github.com:hisho/trpc-next-playground.git
 $ cd trpc-next-playground
 ```
 
-### 2.dockerの起動
+### 2.docker の起動
 
 ```shell
 $ docker-compose up
@@ -31,7 +31,7 @@ package.json に記載されている依存パッケージをインストール�
 $ yarn
 ```
 
-### 4.migrateの実装
+### 4.migrate の実装
 
 ```shell
 $ yarn db:migrate
