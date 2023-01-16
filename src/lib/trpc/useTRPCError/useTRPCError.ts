@@ -1,8 +1,9 @@
-import type { AppRouter } from '@src/server/routers/_app'
 import type { TRPCClientError } from '@trpc/client'
 import type { inferProcedureInput } from '@trpc/server'
 import type { AnyProcedure } from '@trpc/server/src/core/procedure'
 import { useState } from 'react'
+
+import type { AppRouter } from '@/backend/routers/_app'
 
 export const useTRPCError = <T extends AnyProcedure>() => {
   const [error, setError] = useState<TRPCClientError<AppRouter> | undefined>(

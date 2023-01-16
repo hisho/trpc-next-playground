@@ -2,10 +2,10 @@
  *
  * This is an example router, you can delete this file and then update `../pages/api/trpc/[trpc].tsx`
  */
+import { prisma } from '@backend/prisma'
+import { publicProcedure, router } from '@backend/trpc'
 import { Prisma } from '@prisma/client'
 import { createPostSchema } from '@shared/model/Post/schema'
-import { prisma } from '@src/server/prisma'
-import { publicProcedure, router } from '@src/server/trpc'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 

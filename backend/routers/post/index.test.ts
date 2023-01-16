@@ -1,8 +1,8 @@
 /**
  * Integration test example for the `post` router
  */
-import { createContextInner } from '@src/server/context'
-import { AppRouter, appRouter } from '@src/server/routers/_app'
+import { createContextInner } from '@backend/context'
+import { AppRouter, appRouter } from '@backend/routers/_app'
 import type { inferProcedureInput } from '@trpc/server'
 import { expect, test } from 'vitest'
 

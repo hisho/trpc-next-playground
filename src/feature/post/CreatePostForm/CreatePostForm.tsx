@@ -10,11 +10,12 @@ import {
 import { useForm } from '@src/lib/react-hook-form/useForm/useForm'
 import { isTRPCClientError } from '@src/lib/trpc/isTRPCClientError/isTRPCClientError'
 import { useTRPCError } from '@src/lib/trpc/useTRPCError/useTRPCError'
-import type { AppRouter } from '@src/server/routers/_app'
 import { trpc } from '@src/utils/trpc'
 import type { inferProcedureInput } from '@trpc/server'
 import { useMemo } from 'react'
 import { z } from 'zod'
+
+import type { AppRouter } from '@/backend/routers/_app'
 
 const id = 'CreatePostForm' as const
 
