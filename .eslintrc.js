@@ -45,6 +45,7 @@ const config = {
           '**/*.spec.ts',
           '**/*.spec.tsx',
           '*.config.*.ts',
+          '*.ts',
         ],
         optionalDependencies: false,
         peerDependencies: false,
