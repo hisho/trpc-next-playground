@@ -1,21 +1,20 @@
 import { Button, chakra, Heading, Link, Text } from '@chakra-ui/react'
 import { CreatePostForm } from '@src/feature/post/CreatePostForm/CreatePostForm'
+import { usePosts } from '@src/feature/post/Posts/usePosts'
 import type { NextPageWithLayout } from '@src/pages/_app.page'
-import { trpc } from '@src/utils/trpc'
 import NextLink from 'next/link'
 import { Fragment } from 'react'
 
 const IndexPage: NextPageWithLayout = () => {
-  const postsQuery = trpc.post.list.useInfiniteQuery(
-    {
-      limit: 5,
-    },
-    {
-      getPreviousPageParam(lastPage) {
-        return lastPage.nextCursor
-      },
-    }
-  )
+  const {
+    data,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
+    isLoading,
+  } = usePosts({
+    limit: 5,
+  })
 
   return (
     <>
@@ -33,23 +32,21 @@ const IndexPage: NextPageWithLayout = () => {
 
       <Heading as={'h2'}>
         Latest Posts
-        {postsQuery.status === 'loading' && '(loading)'}
+        {isLoading && '(loading)'}
       </Heading>
 
       <Button
-        onClick={() => postsQuery.fetchPreviousPage()}
-        disabled={
-          !postsQuery.hasPreviousPage || postsQuery.isFetchingPreviousPage
-        }
+        onClick={() => fetchPreviousPage()}
+        disabled={!hasPreviousPage || isFetchingPreviousPage}
       >
-        {postsQuery.isFetchingPreviousPage
+        {isFetchingPreviousPage
           ? 'Loading more...'
-          : postsQuery.hasPreviousPage
+          : hasPreviousPage
           ? 'Load More'
           : 'Nothing more to load'}
       </Button>
 
-      {postsQuery.data?.pages.map((page, index) => (
+      {data?.pages.map((page, index) => (
         <Fragment key={page.items[0]?.id || index}>
           {page.items.map((item) => (
             <chakra.article key={item.id}>
