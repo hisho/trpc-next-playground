@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "postinstall": "prisma generate",
+    "postinstall": "run-p generate:prisma add-ts-nocheck",
+    "add-ts-nocheck": "tsx add-ts-nocheck.ts",
     "dev": "run-s dev:next",
     "dev:next": "next dev",
     "build": "run-s generate:prisma db:migrate build:next",
