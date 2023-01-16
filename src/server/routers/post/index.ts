@@ -3,7 +3,7 @@
  * This is an example router, you can delete this file and then update `../pages/api/trpc/[trpc].tsx`
  */
 import { Prisma } from '@prisma/client'
-import { createPostSchema } from '@src/model/Post/schema'
+import { createPostSchema } from '@shared/model/Post/schema'
 import { prisma } from '@src/server/prisma'
 import { publicProcedure, router } from '@src/server/trpc'
 import { TRPCError } from '@trpc/server'
