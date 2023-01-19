@@ -1,6 +1,7 @@
 import { chakra, Heading, Link, Text } from '@chakra-ui/react'
+import { usePost } from '@src/feature/post/Post/usePost'
 import type { NextPageWithLayout } from '@src/pages/_app.page'
-import { RouterOutput, trpc } from '@src/utils/trpc'
+import type { RouterOutput } from '@src/utils/trpc'
 import Head from 'next/head'
 import NextLink from 'next/link'
 import { useRouter } from 'next/router'
@@ -33,23 +34,24 @@ const schema = z.object({
 const PostViewPage: NextPageWithLayout = () => {
   const { query } = useRouter()
   const { id } = schema.parse(query)
-  const postQuery = trpc.post.byId.useQuery({ id })
+  const { data, error, isError, isLoading } = usePost({ id })
 
-  if (postQuery.error) {
+  if (isError || !data) {
     return (
       <>
         <Head>
           <title>404</title>
         </Head>
         <div>
-          <Heading>{postQuery.error.data?.httpStatus}</Heading>
-          <Text>{postQuery.error.message}</Text>
+          <Heading>{error.httpStatus}</Heading>
+          <Text>{error.message}</Text>
         </div>
       </>
     )
   }
 
-  if (postQuery.status !== 'success') {
+  console.log(isLoading)
+  if (isLoading) {
     return <>Loading...</>
   }
 
@@ -58,7 +60,7 @@ const PostViewPage: NextPageWithLayout = () => {
       <Link as={NextLink} href={'/'}>
         Back to home
       </Link>
-      <PostItem post={postQuery.data} />
+      <PostItem post={data} />
     </>
   )
 }
