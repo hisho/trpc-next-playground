@@ -19,7 +19,6 @@ const PostViewPage: NextPageWithLayout = () => {
     return <PostItem.NoData />
   }
 
-  console.log(isLoading)
   if (isLoading) {
     return <PostItem.Loading />
   }
