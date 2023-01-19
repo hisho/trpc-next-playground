@@ -1,8 +1,8 @@
 import { Button, chakra, Heading, Link, Text } from '@chakra-ui/react'
 import { CreatePostForm } from '@src/feature/post/Create/CreatePostForm/CreatePostForm'
+import { PostCard } from '@src/feature/post/Post/PostCard/PostCard'
 import { usePosts } from '@src/feature/post/Posts/usePosts'
 import type { NextPageWithLayout } from '@src/pages/_app.page'
-import NextLink from 'next/link'
 import { Fragment } from 'react'
 
 const IndexPage: NextPageWithLayout = () => {
@@ -49,12 +49,7 @@ const IndexPage: NextPageWithLayout = () => {
       {data?.pages.map((page, index) => (
         <Fragment key={page.items[0]?.id || index}>
           {page.items.map((item) => (
-            <chakra.article key={item.id}>
-              <Heading as={'h3'}>{item.title}</Heading>
-              <Link as={NextLink} href={`/post/${item.id}`}>
-                View more
-              </Link>
-            </chakra.article>
+            <PostCard post={item} key={item.id} />
           ))}
         </Fragment>
       ))}
