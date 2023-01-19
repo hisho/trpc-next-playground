@@ -1,5 +1,5 @@
 import { Button, chakra, Heading, Link, Text } from '@chakra-ui/react'
-import { CreatePostForm } from '@src/feature/post/CreatePostForm/CreatePostForm'
+import { CreatePostForm } from '@src/feature/post/Create/CreatePostForm/CreatePostForm'
 import { usePosts } from '@src/feature/post/Posts/usePosts'
 import type { NextPageWithLayout } from '@src/pages/_app.page'
 import NextLink from 'next/link'
