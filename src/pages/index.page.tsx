@@ -1,4 +1,4 @@
-import { Button, chakra, Heading, Link, Text } from '@chakra-ui/react'
+import { Box, Button, Center, Container, Grid, Heading } from '@chakra-ui/react'
 import { CreatePostForm } from '@src/feature/post/Create/CreatePostForm/CreatePostForm'
 import { PostCard } from '@src/feature/post/Post/PostCard/PostCard'
 import { usePosts } from '@src/feature/post/Posts/usePosts'
@@ -17,49 +17,49 @@ const IndexPage: NextPageWithLayout = () => {
   })
 
   return (
-    <>
-      <Heading as={'h1'}>Welcome to your tRPC starter!</Heading>
-      <Text>
-        If you get stuck, check <Link href="https://trpc.io">the docs</Link>,
-        write a message in our{' '}
-        <Link href="https://trpc.io/discord">Discord-channel</Link>, or write a
-        message in{' '}
-        <Link href="https://github.com/trpc/trpc/discussions">
-          GitHub Discussions
-        </Link>
-        .
-      </Text>
+    <Container>
+      <Heading as={'h1'} textAlign={'center'}>
+        Welcome to your tRPC starter!
+      </Heading>
+
+      <Box h={4} />
 
       <Heading as={'h2'}>
-        Latest Posts
+        Posts
         {isLoading && '(loading)'}
       </Heading>
 
-      <Button
-        onClick={() => fetchPreviousPage()}
-        disabled={!hasPreviousPage || isFetchingPreviousPage}
-      >
-        {isFetchingPreviousPage
-          ? 'Loading more...'
-          : hasPreviousPage
-          ? 'Load More'
-          : 'Nothing more to load'}
-      </Button>
+      <Grid gridTemplateColumns={'repeat(2,1fr)'} gap={2}>
+        {data?.pages.map((page, index) => (
+          <Fragment key={page.items[0]?.id || index}>
+            {page.items.map((item) => (
+              <PostCard post={item} key={item.id} />
+            ))}
+          </Fragment>
+        ))}
+      </Grid>
 
-      {data?.pages.map((page, index) => (
-        <Fragment key={page.items[0]?.id || index}>
-          {page.items.map((item) => (
-            <PostCard post={item} key={item.id} />
-          ))}
-        </Fragment>
-      ))}
+      <Box h={4} />
 
-      <chakra.hr />
+      <Center>
+        <Button
+          onClick={() => fetchPreviousPage()}
+          disabled={!hasPreviousPage || isFetchingPreviousPage}
+        >
+          {isFetchingPreviousPage
+            ? 'Loading more...'
+            : hasPreviousPage
+            ? 'Load More'
+            : 'Nothing more to load'}
+        </Button>
+      </Center>
+
+      <Box h={4} />
 
       <Heading as={'h3'}>Add a Post</Heading>
 
       <CreatePostForm />
-    </>
+    </Container>
   )
 }
 
